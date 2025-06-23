@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>个人简历</title>
+  <title>杨健开的个人博客 | 软件开发与AI应用</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+  
   <script>
     tailwind.config = {
       theme: {
@@ -16,9 +20,13 @@
             dark: '#1D2939',
             light: '#F9FAFB',
             muted: '#667085',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
           },
           fontFamily: {
             inter: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
           },
         },
       }
@@ -48,357 +56,893 @@
       .timeline-dot {
         @apply absolute left-3.5 top-5 h-3 w-3 rounded-full border-2 border-white bg-primary;
       }
+      .project-card {
+        @apply overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-custom bg-white;
+      }
+      .blog-card {
+        @apply overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-custom bg-white;
+      }
+      .filter-active {
+        @apply bg-primary text-white;
+      }
+      .skill-progress {
+        @apply h-2 rounded-full overflow-hidden bg-gray-200;
+      }
+      .skill-progress-bar {
+        @apply h-full rounded-full transition-all duration-1000 ease-out;
+      }
+      .skill-card {
+        @apply bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-custom;
+      }
+      .skill-category {
+        @apply text-xl font-bold mb-4 flex items-center;
+      }
+      .skill-item {
+        @apply mb-4;
+      }
+      .skill-name {
+        @apply font-medium text-sm mb-1;
+      }
+      .skill-percentage {
+        @apply text-xs text-muted;
+      }
     }
   </style>
 </head>
-<body class="bg-gray-50 font-inter text-dark">
-  <div class="max-w-6xl mx-auto p-4 md:p-8">
-    <!-- 简历主体卡片 -->
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <!-- 头部区域 -->
-      <div class="bg-gradient-to-r from-primary to-secondary text-white p-8 md:p-12 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-20 -mb-20"></div>
+<body class="bg-gray-50 font-inter text-dark antialiased">
+  <!-- 导航栏 -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm transition-custom">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a href="#" class="flex items-center">
+            <span class="text-primary text-2xl font-bold">杨健开</span>
+          </a>
+        </div>
+        <nav class="hidden md:flex space-x-8">
+          <a href="#about" class="text-dark hover:text-primary transition-custom font-medium">关于我</a>
+          <a href="#projects" class="text-dark hover:text-primary transition-custom font-medium">作品展示</a>
+          <a href="#skills" class="text-dark hover:text-primary transition-custom font-medium">技能图谱</a>
+          <a href="#blog" class="text-dark hover:text-primary transition-custom font-medium">技术博客</a>
+          <a href="#contact" class="text-dark hover:text-primary transition-custom font-medium">联系方式</a>
+        </nav>
+        <div class="md:hidden flex items-center">
+          <button id="menu-toggle" class="text-dark hover:text-primary focus:outline-none">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">关于我</a>
+        <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">作品展示</a>
+        <a href="#skills" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">技能图谱</a>
+        <a href="#blog" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">技术博客</a>
+        <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-dark hover:bg-primary/10 hover:text-primary">联系方式</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- 英雄区域 -->
+    <section class="mb-16 text-center">
+      <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-4 text-dark">你好，我是杨健开</h1>
+      <p class="text-[clamp(1rem,2vw,1.25rem)] text-muted max-w-3xl mx-auto mb-8">
+        软件工程与AI应用工程师，专注于全栈开发与人工智能应用，致力于通过技术解决实际问题
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="#projects" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-custom">
+          查看我的作品
+        </a>
+        <a href="#contact" class="px-6 py-3 bg-white text-primary border border-primary rounded-lg font-medium hover:bg-primary/5 transition-custom">
+          联系我
+        </a>
+      </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="mb-16">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">关于我</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+        <div class="lg:col-span-2">
+          <div class="relative">
+            <div class="w-full h-auto rounded-2xl overflow-hidden shadow-xl">
+              <img src="简历照片.jpg" alt="杨健开" class="w-full h-auto">
+            </div>
+            <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-full -z-10"></div>
+          </div>
+        </div>
         
-        <div class="flex flex-col md:flex-row items-center justify-between relative z-10">
-          <div>
-            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-2 text-shadow">杨健开</h1>
-            <p class="text-[clamp(1rem,2vw,1.25rem)] text-white/90 mb-4">软件工程 | AI应用工程师</p>
-            <div class="flex flex-wrap gap-4">
-              <a href="tel:15658292931" class="flex items-center text-white/90 hover:text-white transition-custom">
-                <i class="fa fa-phone mr-2"></i> 15658292931
-              </a>
-              <a href="mailto:1801753413@qq.com" class="flex items-center text-white/90 hover:text-white transition-custom">
-                <i class="fa fa-envelope mr-2"></i> 1801753413@qq.com
-              </a>
-          <div class="flex items-center text-white/90">
-                <i class="fa fa-map-marker mr-2"></i> 浙江宁波
-              </div>
-              <div>
-                个人网站（完善中）：https://520rpy.xyz/ 
-              </div>
+        <div class="lg:col-span-3">
+          <h3 class="text-2xl font-bold mb-6">软件工程 | AI应用工程师</h3>
+          <p class="text-muted mb-6 leading-relaxed">
+            具备工程造价与软件工程双专业背景，兼具工程管理思维与软件开发能力，能快速适应不同领域工作需求。
+            参与政府项目监理与全栈开发，熟悉从需求分析到项目交付的完整流程，具备良好的问题解决能力。
+          </p>
+          
+          <div class="grid grid-cols-2 gap-6 mb-8">
+            <div>
+              <h4 class="font-bold mb-2">教育背景</h4>
+              <p class="text-muted">宁波财经学院 软件工程 (本科)</p>
+              <p class="text-muted">浙江工商职业技术学院 工程造价 (专科)</p>
+            </div>
+            <div>
+              <h4 class="font-bold mb-2">技能专长</h4>
+              <p class="text-muted">Java开发 / Web前端 / 数据库设计</p>
+              <p class="text-muted">机器学习 / 安卓开发</p>
             </div>
           </div>
           
-          <div class="mt-6 md:mt-0 relative">
-            <div class="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg hover-lift">
-              <img src="8d93452967efd88217c60b972f8c877.jpg" alt="个人头像" class="w-full h-full object-cover">
+          <div class="flex flex-wrap gap-4">
+            <a href="tel:15658292931" class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-custom">
+              <i class="fa fa-phone text-primary mr-2"></i> 15658292931
+            </a>
+            <a href="mailto:1801753413@qq.com" class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-custom">
+              <i class="fa fa-envelope text-primary mr-2"></i> 1801753413@qq.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 作品展示 -->
+    <section id="projects" class="mb-16">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">作品展示</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+        <p class="text-muted max-w-2xl mx-auto">
+          专注展示我的核心项目成果，点击图片可查看详细内容
+        </p>
+      </div>
+      
+      <!-- 筛选标签 -->
+      <div class="flex flex-wrap justify-center gap-2 mb-8">
+        <button class="filter-btn px-4 py-2 rounded-full bg-primary text-white font-medium" data-filter="all">全部项目</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-200 text-dark font-medium hover:bg-gray-300 transition-custom" data-filter="ai">AI应用</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-200 text-dark font-medium hover:bg-gray-300 transition-custom" data-filter="web">Web开发</button>
+      </div>
+      
+      <!-- 作品网格 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="projects-grid">
+        <!-- 项目1: AI图像处理系统 -->
+        <div class="project-card" data-category="ai">
+          <div class="relative overflow-hidden group">
+            <a href="#project1" class="block">
+              <img src="https://p9-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/04572de7-5dbd-4df0-81ce-b7d5e40ce0c8_1750646391720488089~tplv-a9rns2rl98-web-preview-watermark.png?rk3s=b14c611d&x-expires=1782182391&x-signature=b5CQ%2Bgp2cW8aKmHKOP7ay9B1nWs%3D" alt="AI图像处理系统" class="w-full h-64 object-cover hover-lift">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-custom flex items-end p-6">
+                <h3 class="text-white text-xl font-bold">AI图像处理系统</h3>
+                <p class="text-white/80 mt-2">基于TensorFlow的智能图像分类与识别</p>
+              </div>
+            </a>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-muted mb-3">
+              <i class="fa fa-calendar-o mr-2"></i> 2024.09 - 2025.01
+              <span class="mx-2">•</span>
+              <i class="fa fa-tag mr-2"></i>
+              <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">AI应用</span>
             </div>
+            <h3 class="font-bold text-xl mb-3">AI图像处理系统</h3>
+            <p class="text-muted mb-4">
+              使用TensorFlow框架开发的智能图像处理系统，实现图片分类、特征提取与场景识别功能，应用于安防监控与工业检测场景。
+            </p>
+            <a href="#project1" class="inline-flex items-center text-primary font-medium hover:underline">
+              查看项目详情 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 项目2: 健康管理系统 -->
+        <div class="project-card" data-category="web">
+          <div class="relative overflow-hidden group">
+            <a href="#project2" class="block">
+              <img src="https://p9-flow-imagex-sign.byteimg.com/ocean-cloud-tos/image_skill/5ffe400a-f829-4620-9eef-3f77d5d753f7_1750646271460569130~tplv-a9rns2rl98-web-thumb-wm-avif.avif?rk3s=b14c611d&x-expires=1782182271&x-signature=XZ2OgX6A1RZltoScHJPVdbI%2Ftns%3D" alt="健康管理系统" class="w-full h-64 object-cover hover-lift">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-custom flex items-end p-6">
+                <h3 class="text-white text-xl font-bold">健康管理系统</h3>
+                <p class="text-white/80 mt-2">全栈开发的健康数据管理平台</p>
+              </div>
+            </a>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-muted mb-3">
+              <i class="fa fa-calendar-o mr-2"></i> 2024.04 - 2024.06
+              <span class="mx-2">•</span>
+              <i class="fa fa-tag mr-2"></i>
+              <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">Web开发</span>
+            </div>
+            <h3 class="font-bold text-xl mb-3">健康管理系统</h3>
+            <p class="text-muted mb-4">
+              采用Spring Boot + Vue全栈技术栈开发的健康管理系统，包含用户管理、健康指标监测、数据可视化等核心功能。
+            </p>
+            <a href="#project2" class="inline-flex items-center text-primary font-medium hover:underline">
+              查看项目详情 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
           </div>
         </div>
       </div>
       
-      <!-- 主体内容 -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6 md:p-10">
-        <!-- 左侧栏 -->
-        <div class="lg:col-span-1 space-y-8">
-          <!-- 求职意向 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-bullseye text-primary mr-2"></i> 求职意向
-            </h2>
-            <div class="space-y-3">
-              <div class="flex items-start">
-                <i class="fa fa-briefcase text-primary mt-1 mr-3"></i>
-                <div>
-                  <h3 class="font-medium">目标岗位</h3>
-                  <p class="text-muted">软件开发工程师/AI应用工程师</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa fa-map-marker text-primary mt-1 mr-3"></i>
-                <div>
-                  <h3 class="font-medium">工作地点</h3>
-                  <p class="text-muted">宁波</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa fa-calendar text-primary mt-1 mr-3"></i>
-                <div>
-                  <h3 class="font-medium">到岗时间</h3>
-                  <p class="text-muted">一个月内</p>
-                </div>
-              </div>
-              <div class="flex items-start">
-                <i class="fa fa-money text-primary mt-1 mr-3"></i>
-                <div>
-                  <h3 class="font-medium">期望薪资</h3>
-                  <p class="text-muted">6000-8000元/月</p>
-                </div>
-              </div>
-            </div>
-          </section>
+      <!-- 项目1 详情模态框 -->
+      <div id="project1" class="project-detail hidden bg-white rounded-xl shadow-2xl p-6 max-w-4xl mx-auto my-8">
+        <div class="flex justify-between items-start mb-6">
+          <h3 class="text-2xl font-bold">AI图像处理系统</h3>
+          <button class="close-project detail-close text-muted hover:text-dark">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="project-image-gallery mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="https://picsum.photos/1200/800?random=11" data-fancybox="project1" class="block">
+              <img src="https://picsum.photos/800/500?random=11" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=12" data-fancybox="project1" class="block">
+              <img src="https://picsum.photos/800/500?random=12" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=13" data-fancybox="project1" class="block">
+              <img src="https://picsum.photos/800/500?random=13" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=14" data-fancybox="project1" class="block">
+              <img src="https://picsum.photos/800/500?random=14" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+          </div>
+        </div>
+        <div class="mb-6">
+          <h4 class="font-bold text-lg mb-3">项目概述</h4>
+          <p class="text-muted leading-relaxed">
+            该项目是一个基于TensorFlow框架的智能图像处理系统，主要实现了图像分类、特征提取和场景识别功能。
+            系统能够对输入的图片进行分析，自动识别其中的物体类型、场景特征等信息，并进行分类整理。
+          </p>
+          <h4 class="font-bold text-lg mb-3 mt-6">技术架构</h4>
+          <p class="text-muted leading-relaxed">
+            <strong>后端：</strong>TensorFlow + Python + Flask<br>
+            <strong>前端：</strong>Vue.js + Element UI<br>
+            <strong>数据存储：</strong>MySQL + Redis<br>
+            <strong>服务器：</strong>Docker + Kubernetes
+          </p>
+          <h4 class="font-bold text-lg mb-3 mt-6">我的职责</h4>
+          <p class="text-muted leading-relaxed">
+            - 负责TensorFlow模型的训练与优化，实现85%的图像分类准确率<br>
+            - 开发前端交互界面，实现图像上传、结果展示与数据管理功能<br>
+            - 优化模型推理速度，实现批量图像处理流水线，处理效率提升40%
+          </p>
+        </div>
+        <div class="flex justify-end">
+          <button class="close-project detail-close px-4 py-2 bg-gray-200 text-dark rounded-lg font-medium hover:bg-gray-300 transition-custom">
+            关闭项目
+          </button>
+        </div>
+      </div>
+      
+      <!-- 项目2 详情模态框 -->
+      <div id="project2" class="project-detail hidden bg-white rounded-xl shadow-2xl p-6 max-w-4xl mx-auto my-8">
+        <div class="flex justify-between items-start mb-6">
+          <h3 class="text-2xl font-bold">健康管理系统</h3>
+          <button class="close-project detail-close text-muted hover:text-dark">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="project-image-gallery mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="https://picsum.photos/1200/800?random=21" data-fancybox="project2" class="block">
+              <img src="https://picsum.photos/800/500?random=21" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=22" data-fancybox="project2" class="block">
+              <img src="https://picsum.photos/800/500?random=22" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=23" data-fancybox="project2" class="block">
+              <img src="https://picsum.photos/800/500?random=23" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+            <a href="https://picsum.photos/1200/800?random=24" data-fancybox="project2" class="block">
+              <img src="https://picsum.photos/800/500?random=24" alt="项目截图" class="w-full h-auto rounded-lg hover-lift">
+            </a>
+          </div>
+        </div>
+        <div class="mb-6">
+          <h4 class="font-bold text-lg mb-3">项目概述</h4>
+          <p class="text-muted leading-relaxed">
+            健康管理系统是一个全栈开发的健康数据管理平台，旨在帮助用户记录和管理个人健康数据，
+            包括体重、心率、血压等健康指标，并提供数据可视化与健康建议功能。
+          </p>
+          <h4 class="font-bold text-lg mb-3 mt-6">技术架构</h4>
+          <p class="text-muted leading-relaxed">
+            <strong>后端：</strong>Spring Boot + Spring Cloud + MyBatis<br>
+            <strong>前端：</strong>Vue.js + Vuex + Element UI<br>
+            <strong>移动端：</strong>Android SDK + Kotlin<br>
+            <strong>数据库：</strong>MySQL + Redis
+          </p>
+          <h4 class="font-bold text-lg mb-3 mt-6">我的职责</h4>
+          <p class="text-muted leading-relaxed">
+            - 负责用户管理模块的前后端开发，实现用户注册、登录与权限管理功能<br>
+            - 开发健康数据统计与可视化模块，使用ECharts实现多维度数据展示<br>
+            - 优化数据库查询性能，实现健康数据的批量导入与导出功能
+          </p>
+        </div>
+        <div class="flex justify-end">
+          <button class="close-project detail-close px-4 py-2 bg-gray-200 text-dark rounded-lg font-medium hover:bg-gray-300 transition-custom">
+            关闭项目
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能统计 -->
+    <section id="skills" class="mb-16 bg-white rounded-xl shadow-lg p-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">技能图谱</h2>
+        <div class="w-20 h-1 bg-primary mx-auto"></div>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-bold mb-6">技术栈</h3>
           
-          <!-- 教育背景 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-graduation-cap text-primary mr-2"></i> 教育背景
-            </h2>
-            <div class="space-y-5">
-              <div class="relative pl-8">
-                <div class="timeline-dot"></div>
-                <div class="timeline-line"></div>
-                <div>
-                  <h3 class="font-medium">宁波财经学院</h3>
-                  <p class="text-sm text-muted">软件工程（本科） | 2023.09 - 2025.06（在读）</p>
-                  <p class="text-sm mt-1">主修课程：Web编程、Java EE、微服务开发等</p>
-                  <p class="text-sm mt-1 text-primary font-medium">GPA 3.4（专业前10%）</p>
-                </div>
+          <div class="space-y-6">
+            <!-- 后端开发 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-server text-primary mr-2"></i>
+                <span>后端开发</span>
               </div>
-              
-              <div class="relative pl-8">
-                <div class="timeline-dot"></div>
-                <div>
-                  <h3 class="font-medium">浙江工商职业技术学院</h3>
-                  <p class="text-sm text-muted">工程造价（专科） | 2021.09 - 2023.06</p>
-                  <p class="text-sm mt-1">GPA 3.4（班级前5%），获校级奖学金</p>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Java开发</span>
+                    <span class="skill-percentage">85%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 85%"></div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </section>
-          
-          <!-- 技能特长 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-code text-primary mr-2"></i> 技能特长
-            </h2>
-            <div class="space-y-4">
-              <div class="flex items-start">
-                <div class="text-primary mt-1 mr-3">
-                  <i class="fa fa-check-circle"></i>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Spring Boot/Spring Cloud</span>
+                    <span class="skill-percentage">80%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 80%"></div>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="font-medium">Java开发</h3>
-                  <p class="text-sm text-muted">熟悉Spring Boot/Spring Cloud框架，具备完整项目开发经验</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="text-primary mt-1 mr-3">
-                  <i class="fa fa-check-circle"></i>
-                </div>
-                <div>
-                  <h3 class="font-medium">Web前端</h3>
-                  <p class="text-sm text-muted">掌握HTML/CSS/JavaScript，了解Vue.js框架和响应式设计</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="text-primary mt-1 mr-3">
-                  <i class="fa fa-check-circle"></i>
-                </div>
-                <div>
-                  <h3 class="font-medium">数据库设计</h3>
-                  <p class="text-sm text-muted">熟练使用MySQL/Neo4j，擅长数据库建模和优化</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="text-primary mt-1 mr-3">
-                  <i class="fa fa-check-circle"></i>
-                </div>
-                <div>
-                  <h3 class="font-medium">机器学习</h3>
-                  <p class="text-sm text-muted">熟悉TensorFlow框架，掌握基础模型构建与训练</p>
-                </div>
-              </div>
-              
-              <div class="flex items-start">
-                <div class="text-primary mt-1 mr-3">
-                  <i class="fa fa-check-circle"></i>
-                </div>
-                <div>
-                  <h3 class="font-medium">安卓开发</h3>
-                  <p class="text-sm text-muted">熟悉Android SDK，掌握UI设计、和安卓逆向工程，参与健康管理系统移动端开发</p>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">微服务架构</span>
+                    <span class="skill-percentage">75%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 75%"></div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div class="mt-6">
-              <h3 class="font-medium mb-2">专业工具</h3>
-              <div class="flex flex-wrap gap-2">
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">IDEA</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">VSCode</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Maven</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">MySQL</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">Neo4j</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">TensorFlow</span>
-                <span class="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">CAD</span>
+            <!-- 前端开发 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-code text-primary mr-2"></i>
+                <span>前端开发</span>
+              </div>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">HTML/CSS/JavaScript</span>
+                    <span class="skill-percentage">80%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-secondary" style="width: 80%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Vue.js</span>
+                    <span class="skill-percentage">70%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-secondary" style="width: 70%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">响应式设计</span>
+                    <span class="skill-percentage">75%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-secondary" style="width: 75%"></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
-          
-          <!-- 荣誉证书 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-trophy text-primary mr-2"></i> 荣誉证书
-            </h2>
-            <div class="space-y-3">
-              <div class="flex items-center">
-                <i class="fa fa-certificate text-primary mr-3"></i>
-                <span>英语四级证书</span>
+            
+            <!-- 数据库 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-database text-primary mr-2"></i>
+                <span>数据库</span>
               </div>
-              <div class="flex items-center">
-                <i class="fa fa-certificate text-primary mr-3"></i>
-                <span>计算机二级证书</span>
-              </div>
-              <div class="flex items-center">
-                <i class="fa fa-certificate text-primary mr-3"></i>
-                <span>CAD中级证书</span>
-              </div>
-              <div class="flex items-center">
-                <i class="fa fa-certificate text-primary mr-3"></i>
-                <span>校级三等奖学金</span>
-              </div>
-              <div class="flex items-center">
-                <i class="fa fa-certificate text-primary mr-3"></i>
-                <span>学士奖学金</span>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">MySQL</span>
+                    <span class="skill-percentage">85%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-success" style="width: 85%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Neo4j</span>
+                    <span class="skill-percentage">70%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-success" style="width: 70%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">数据库设计与优化</span>
+                    <span class="skill-percentage">80%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-success" style="width: 80%"></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
         </div>
         
-        <!-- 右侧栏 -->
-        <div class="lg:col-span-2 space-y-8">
-          <!-- 项目经验 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-cubes text-primary mr-2"></i> 项目经验
-            </h2>
-            <div class="space-y-6">
-              <div class="bg-white rounded-lg p-5 shadow-xs hover:shadow-sm transition-custom">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-3">
-                  <div>
-                    <h3 class="font-bold text-lg">健康管理系统</h3>
-                    <p class="text-muted">全栈开发</p>
-                  </div>
-                  <span class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">2024.09 - 2025.01</span>
-                </div>
-                <ul class="list-disc pl-5 space-y-2 text-sm">
-                  <li>使用Spring Boot（后端）+ Android/Vue（前端）技术栈</li>
-                  <li>负责用户管理模块的前后端开发</li>
-                  <li>实现体重记录、健康指标（心率）监测等功能</li>
-                  <li>系统上线后，提升用户健康数据管理效率</li>
-                </ul>
-              </div>
-              
-              <div class="bg-white rounded-lg p-5 shadow-xs hover:shadow-sm transition-custom">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-3">
-                  <div>
-                    <h3 class="font-bold text-lg">宁波市森林防灭火场景智能模型及算法服务</h3>
-                    <p class="text-muted">信息系统监理</p>
-                  </div>
-                  <span class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">2025.01 - 2025.06</span>
-                </div>
-                <ul class="list-disc pl-5 space-y-2 text-sm">
-                  <li>审核8份技术文件，提出5条优化建议</li>
-                  <li>优化GPU内存利用率至75%，推动算法拟合度达88%</li>
-                  <li>解决3处传感器兼容问题，监督500并发压力测试</li>
-                  <li>数据库响应时间≤1.5秒，确保系统稳定性</li>
-                </ul>
-              </div>
-            </div>
-          </section>
+        <div>
+          <h3 class="text-xl font-bold mb-6">专业能力</h3>
           
-          <!-- 工作经验 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-briefcase text-primary mr-2"></i> 工作经验
-            </h2>
-            <div class="space-y-6">
-              <div class="bg-white rounded-lg p-5 shadow-xs hover:shadow-sm transition-custom">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-3">
-                  <div>
-                    <h3 class="font-bold text-lg">北京国研科技咨询有限公司浙江分公司</h3>
-                    <p class="text-muted">信息系统工程监理</p>
+          <div class="space-y-6">
+            <!-- AI与机器学习 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-brain text-primary mr-2"></i>
+                <span>AI与机器学习</span>
+              </div>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">TensorFlow框架</span>
+                    <span class="skill-percentage">75%</span>
                   </div>
-                  <span class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">2025.01 - 2025.06</span>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-warning" style="width: 75%"></div>
+                  </div>
                 </div>
-                <ul class="list-disc pl-5 space-y-2 text-sm">
-                  <li>为宁波市交通警察局等政府单位提供第三方咨询服务</li>
-                  <li>负责软件功能测试、硬件上电测试、设备配置核对等工作</li>
-                  <li>利用 TensorFlow 框架，开发图像处理程序，实现从复杂场景图片中精准截取信号灯图像。</li>
-                  <li>构建自动化工具，依据路口特征自动对图片进行分类，文件处理时间减少一半</li>
-                </ul>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">图像处理与计算机视觉</span>
+                    <span class="skill-percentage">70%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-warning" style="width: 70%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">模型训练与优化</span>
+                    <span class="skill-percentage">65%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-warning" style="width: 65%"></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </section>
-          
-          <!-- 自我评价 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-user text-primary mr-2"></i> 自我评价
-            </h2>
-            <div class="space-y-3">
-              <p class="text-sm">具备工程造价与软件工程双专业背景，兼具工程管理思维与软件开发能力，能快速适应不同领域工作需求</p>
-              <p class="text-sm">参与政府项目监理与全栈开发，熟悉从需求分析到项目交付的完整流程，具备良好的问题解决能力</p>
-              <p class="text-sm">曾担任学院团总支副书记，带领团队获得考核第一，具备优秀的团队协作与沟通能力</p>
-              <p class="text-sm">快速学习能力强，能迅速掌握TensorFlow、Neo4j等新知识新技术，推动项目高效落地</p>
-            </div>
-          </section>
-          
-          <!-- 兴趣爱好 -->
-          <section class="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-custom">
-            <h2 class="text-xl font-bold mb-4 flex items-center">
-              <i class="fa fa-heart text-primary mr-2"></i> 兴趣爱好
-            </h2>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div class="bg-white rounded-lg p-4 text-center shadow-xs hover:shadow-sm transition-custom">
-                <div class="text-primary text-2xl mb-1">
-                  <i class="fa fa-code"></i>
-                </div>
-                <p class="text-sm">编程开发</p>
+            
+            <!-- 移动开发 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-mobile text-primary mr-2"></i>
+                <span>移动开发</span>
               </div>
-              <div class="bg-white rounded-lg p-4 text-center shadow-xs hover:shadow-sm transition-custom">
-                <div class="text-primary text-2xl mb-1">
-                  <i class="fa fa-book"></i>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Android SDK</span>
+                    <span class="skill-percentage">70%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-danger" style="width: 70%"></div>
+                  </div>
                 </div>
-                <p class="text-sm">技术研究</p>
-              </div>
-              <div class="bg-white rounded-lg p-4 text-center shadow-xs hover:shadow-sm transition-custom">
-                <div class="text-primary text-2xl mb-1">
-                  <i class="fa fa-users"></i>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">UI设计与开发</span>
+                    <span class="skill-percentage">65%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-danger" style="width: 65%"></div>
+                  </div>
                 </div>
-                <p class="text-sm">团队协作</p>
-              </div>
-              <div class="bg-white rounded-lg p-4 text-center shadow-xs hover:shadow-sm transition-custom">
-                <div class="text-primary text-2xl mb-1">
-                  <i class="fa fa-tree"></i>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">安卓逆向工程</span>
+                    <span class="skill-percentage">60%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-danger" style="width: 60%"></div>
+                  </div>
                 </div>
-                <p class="text-sm">户外运动</p>
               </div>
             </div>
-          </section>
+            
+            <!-- 工具与方法 -->
+            <div class="skill-card">
+              <div class="skill-category">
+                <i class="fa fa-tools text-primary mr-2"></i>
+                <span>工具与方法</span>
+              </div>
+              <div class="space-y-4">
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">IDEA/VSCode</span>
+                    <span class="skill-percentage">90%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 90%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Maven/Gradle</span>
+                    <span class="skill-percentage">80%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 80%"></div>
+                  </div>
+                </div>
+                <div class="skill-item">
+                  <div class="flex justify-between mb-1">
+                    <span class="skill-name">Git版本控制</span>
+                    <span class="skill-percentage">85%</span>
+                  </div>
+                  <div class="skill-progress">
+                    <div class="skill-progress-bar bg-primary" style="width: 85%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
-      <!-- 页脚区域 -->
-      <div class="bg-gray-50 py-4 px-6 text-center text-sm text-muted">
-        <p>联系方式：15658292931 | 邮箱：1801753413@qq.com</p>
+      <div class="mt-12">
+        <h3 class="text-xl font-bold mb-6 text-center">技能雷达图</h3>
+        <div class="max-w-2xl mx-auto">
+          <canvas id="skills-radar-chart" height="300"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技术博客 -->
+    <section id="blog" class="mb-16">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">技术博客</h2>
+        <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+        <p class="text-muted max-w-2xl mx-auto">
+          记录我的技术学习与项目实践经验，分享软件开发、AI应用等领域的技术心得
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- 博客文章1 -->
+        <article class="blog-card">
+          <div class="relative overflow-hidden">
+            <a href="#" class="block">
+              <img src="https://picsum.photos/600/400?random=21" alt="博客文章" class="w-full h-48 object-cover hover-lift">
+              <div class="absolute top-4 left-4 bg-primary text-white text-xs font-medium px-2 py-1 rounded-full">AI应用</div>
+            </a>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-muted mb-3">
+              <i class="fa fa-calendar-o mr-2"></i> 2025-06-20
+              <span class="mx-2">•</span>
+              <i class="fa fa-eye mr-2"></i> 128
+            </div>
+            <h3 class="font-bold text-xl mb-3"><a href="#" class="hover:text-primary transition-custom">TensorFlow图像分类模型的优化实践</a></h3>
+            <p class="text-muted mb-4 line-clamp-3">
+              介绍如何在实际项目中优化TensorFlow图像分类模型，包括数据增强、模型压缩、推理优化等方面的实践经验...
+            </p>
+            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+              阅读更多 <i class="fa fa-long-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </article>
+        
+        <!-- 博客文章2 -->
+        <article class="blog-card">
+          <div class="relative overflow-hidden">
+            <a href="#" class="block">
+              <img src="https://picsum.photos/600/400?random=22" alt="博客文章" class="w-full h-48 object-cover hover-lift">
+              <div class="absolute top-4 left-4 bg-secondary text-white text-xs font-medium px-2 py-1 rounded-full">Web开发</div>
+            </a>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-muted mb-3">
+              <i class="fa fa-calendar-o mr-2"></i> 2025-06-15
+              <span class="mx-2">•</span>
+              <i class="fa fa-eye mr-2"></i> 96
+            </div>
+            <h3 class="font-bold text-xl mb-3"><a href="#" class="hover:text-primary transition-custom">Spring Boot微服务架构设计与实践</a></h3>
+            <p class="text-muted mb-4 line-clamp-3">
+              分享在企业级项目中使用Spring Boot构建微服务架构的经验，包括服务拆分、注册发现、配置管理等...
+            </p>
+            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+              阅读更多 <i class="fa fa-long-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </article>
+        
+        <!-- 博客文章3 -->
+        <article class="blog-card">
+          <div class="relative overflow-hidden">
+            <a href="#" class="block">
+              <img src="https://picsum.photos/600/400?random=23" alt="博客文章" class="w-full h-48 object-cover hover-lift">
+              <div class="absolute top-4 left-4 bg-success text-white text-xs font-medium px-2 py-1 rounded-full">数据库</div>
+            </a>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center text-sm text-muted mb-3">
+              <i class="fa fa-calendar-o mr-2"></i> 2025-06-10
+              <span class="mx-2">•</span>
+              <i class="fa fa-eye mr-2"></i> 112
+            </div>
+            <h3 class="font-bold text-xl mb-3"><a href="#" class="hover:text-primary transition-custom">MySQL与Neo4j在复杂关系数据中的应用比较</a></h3>
+            <p class="text-muted mb-4 line-clamp-3">
+              比较传统关系型数据库MySQL与图数据库Neo4j在处理复杂关系数据时的优缺点及适用场景...
+            </p>
+            <a href="#" class="inline-flex items-center text-primary font-medium hover:underline">
+              阅读更多 <i class="fa fa-long-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </article>
+      </div>
+      
+      <div class="text-center mt-12">
+        <a href="#" class="inline-flex items-center px-6 py-3 bg-white border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-custom">
+          查看更多博客文章 <i class="fa fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- 联系方式 -->
+  <section id="contact" class="bg-primary text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">联系方式</h2>
+        <div class="w-20 h-1 bg-white/30 mx-auto"></div>
+        <p class="text-white/80 max-w-2xl mx-auto mt-6">
+          如果你对我的作品感兴趣或有任何合作机会，欢迎通过以下方式联系我
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa fa-phone text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">电话</h3>
+          <p class="text-white/80">15658292931</p>
+        </div>
+        
+        <div class="text-center">
+          <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa fa-envelope text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">邮箱</h3>
+          <p class="text-white/80">1801753413@qq.com</p>
+        </div>
+        
+        <div class="text-center">
+          <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa fa-map-marker text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-2">地址</h3>
+          <p class="text-white/80">浙江宁波</p>
+        </div>
+      </div>
+      
+      <div class="max-w-2xl mx-auto mt-12 text-center">
+        <h3 class="text-xl font-bold mb-6">关注我</h3>
+        <div class="flex justify-center space-x-6">
+          <a href="#" class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-custom">
+            <i class="fa fa-github text-xl"></i>
+          </a>
+          <a href="#" class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-custom">
+            <i class="fa fa-linkedin text-xl"></i>
+          </a>
+          <a href="#" class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-custom">
+            <i class="fa fa-coding text-xl"></i>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-  
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-xl font-bold mb-4">杨健开</h3>
+          <p class="text-white/70 mb-4">
+            软件工程与AI应用工程师，致力于通过技术解决实际问题，创造有价值的软件产品。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-white/70 hover:text-white transition-custom">
+              <i class="fa fa-github"></i>
+            </a>
+            <a href="#" class="text-white/70 hover:text-white transition-custom">
+              <i class="fa fa-linkedin"></i>
+            </a>
+            <a href="#" class="text-white/70 hover:text-white transition-custom">
+              <i class="fa fa-coding"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-xl font-bold mb-4">快速链接</h3>
+          <ul class="space-y-2">
+            <li><a href="#about" class="text-white/70 hover:text-white transition-custom">关于我</a></li>
+            <li><a href="#projects" class="text-white/70 hover:text-white transition-custom">作品展示</a></li>
+            <li><a href="#skills" class="text-white/70 hover:text-white transition-custom">技能图谱</a></li>
+            <li><a href="#blog" class="text-white/70 hover:text-white transition-custom">技术博客</a></li>
+            <li><a href="#contact" class="text-white/70 hover:text-white transition-custom">联系方式</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-xl font-bold mb-4">订阅更新</h3>
+          <p class="text-white/70 mb-4">
+            订阅我的技术博客，获取最新的项目和技术分享
+          </p>
+          <form class="flex">
+            <input type="email" placeholder="你的邮箱地址" class="px-4 py-2 rounded-l-lg flex-1 focus:outline-none text-dark">
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-r-lg hover:bg-primary/90 transition-custom">
+              订阅
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="border-t border-white/10 mt-12 pt-8 text-center text-white/50 text-sm">
+        <p>© 2025 杨健开. 保留所有权利.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 回到顶部按钮 -->
+  <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-custom z-50">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
   <!-- 交互脚本 -->
   <script>
-    // 添加页面加载动画
-    document.addEventListener('DOMContentLoaded', function() {
-      const sections = document.querySelectorAll('.resume-container > div');
-      sections.forEach((section, index) => {
-        setTimeout(() => {
-          section.classList.add('opacity-100');
-          section.classList.remove('opacity-0');
-        }, 100 * index);
+    // 移动端菜单切换
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 项目筛选功能
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // 移除所有按钮的激活状态
+        filterButtons.forEach(btn => btn.classList.remove('filter-active'));
+        // 添加当前按钮激活状态
+        this.classList.add('filter-active');
+        
+        const filter = this.getAttribute('data-filter');
+        
+        projectCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-category') === filter) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
       });
     });
     
     // 平滑滚动
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
+      anchor.addEventListener('click', function(e) {
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-        });
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 关闭移动端菜单
+          document.getElementById('mobile-menu').classList.add('hidden');
+        }
+      });
+    });
+    
+    // 回到顶部按钮
+    const backToTopButton = document.getElementById('back-to-top');
+    
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove('opacity-0', 'invisible');
+        backToTopButton.classList.add('opacity-100', 'visible');
+      } else {
+        backToTopButton.classList.add('opacity-0', 'invisible');
+        backToTopButton.classList.remove('opacity-100', 'visible');
+      }
+    });
+    
+    backToTopButton.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // 项目详情关闭按钮
+    const closeButtons = document.querySelectorAll('.close-project');
+    closeButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const projectDetail = this.closest('.project-detail');
+        projectDetail.classList.add('hidden');
+      });
+    });
+    
+    // 技能雷达图
+    const radarCtx = document.getElementById('skills-radar-chart').getContext('2d');
+    new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Java开发', 'Web前端', '数据库设计', 'AI应用', '安卓开发', '工具应用'],
+        datasets: [{
+          label: '技能掌握程度',
+          data: [85, 75, 80, 70, 65, 85],
+          backgroundColor: 'rgba(22, 93, 255, 0.2)',
+          borderColor: 'rgba(22, 93, 255, 1)',
+          pointBackgroundColor: 'rgba(22, 93, 255, 1)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgba(22, 93, 255, 1)'
+        }]
+      },
+      options: {
+        scales: {
+          r: {
+            angleLines: {
+              display: true
+            },
+            suggestedMin: 0,
+            suggestedMax: 100
+          }
+        }
+      }
+    });
+    
+    // 初始化Fancybox
+    $(document).ready(function() {
+      $('.project-image-gallery a').fancybox({
+        thumbs: {
+          autoStart: true
+        },
+        transitionEffect: 'fade',
+        protect: true
       });
     });
   </script>
